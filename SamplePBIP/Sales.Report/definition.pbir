@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "datasetReference": {
+    "byPath": null,
+    "byConnection": {
+      "connectionString": "Data Source=\"powerbi://api.powerbi.com/v1.0/myorg/RR - PlatformAPIs - Import\";Initial Catalog=Sales;Integrated Security=ClaimsToken",
+      "pbiServiceModelId": null,
+      "pbiModelVirtualServerName": "sobe_wowvirtualserver",
+      "pbiModelDatabaseName": "1eebc615-bafd-4a8e-b4a2-ff17b87a087f",
+      "name": "EntityDataSource",
+      "connectionType": "pbiServiceXmlaStyleLive"
+    }
+  }
+}
