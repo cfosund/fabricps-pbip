@@ -4,7 +4,7 @@ Set-Location $currentPath
 
 Import-Module ".\FabricPS-PBIP.psm1" -Force
 
-# https://msit.powerbi.com/groups/cdfc383c-5eaa-4f39-91de-0eb26fdd2401/list
+# https://msit.powerbi.com/groups/cdfc383c-5eaa-4f39-91de-0eb26fdd2401
 
 $workspaceId = "cdfc383c-5eaa-4f39-91de-0eb26fdd2401"
 
