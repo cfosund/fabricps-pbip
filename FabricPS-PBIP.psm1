@@ -28,7 +28,7 @@ Function Export-FabricItems
     (
         [string]$baseUrl = "https://api.fabric.microsoft.com/v1"
         ,
-        [string]$outputPath = '.\pbipOutput'
+        [string]$path = '.\pbipOutput'
         ,
         [string]$workspaceId = 'd020f53d-eb41-421d-af50-8279882524f3'
 	)

@@ -8,4 +8,9 @@ Import-Module ".\FabricPS-PBIP.psm1" -Force
 
 $workspaceId = "d020f53d-eb41-421d-af50-8279882524f3"
 
-Export-FabricItems -workspaceId $workspaceId -outputPath '.\output'
+Export-FabricItems -workspaceId $workspaceId -path '.\output'
+
+#$importWorkspaceId = "5bff05e0-355e-41d3-a776-08659726f396"
+
+#Import-FabricItems -workspaceId $importWorkspaceId -path '.\output'
+
