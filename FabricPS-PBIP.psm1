@@ -46,7 +46,7 @@ Function Export-FabricItems
         $itemId = $item.objectId
         $itemName = $item.displayName
         $itemType = $item.type
-        $itemOutputPath = "$outputPath\$workspaceId\$($itemName).$($itemType)"
+        $itemOutputPath = "$path\$workspaceId\$($itemName).$($itemType)"
 
         if ($itemType -in @("report", "dataset"))
         {
@@ -216,4 +216,37 @@ Function Import-FabricItems
         }
     }
 
+}
+
+Function Remove-FabricItems 
+{
+    [CmdletBinding()]
+    param
+    (
+        [string]$baseUrl = "https://api.fabric.microsoft.com/v1"
+        ,
+        [string]$workspaceId = $null
+        ,
+        [string]$filter = $null
+	)
+   
+    $items = Invoke-RestMethod -Uri ("{0}/workspaces/{1}/items" -f $baseUrl, $workspaceId) -Method Get -Headers $fabricHeaders
+
+    Write-Host "Existing items: $($items.Count)"
+
+    if ($filter)
+    {
+        $items = $items |? {$_.DisplayName -like $filter}
+    }
+
+    foreach($item in $items)
+    {
+        $itemId = $item.objectId
+        $itemName = $item.displayName
+
+        Write-Host "Removing item '$itemName' ($itemId)"
+        
+        Invoke-RestMethod -Uri ("{0}/workspaces/{1}/items/{2}" -f $baseUrl, $workspaceId, $itemId) -Method Delete -Headers $fabricHeaders
+    }
+    
 }

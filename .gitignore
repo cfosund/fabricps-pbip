@@ -2,3 +2,8 @@
 **/.pbi/cache.abf
 
 **/output/*
+**/export/*
+
+Theme*.json
+
+*.url
