@@ -1,8 +1,8 @@
 **/.pbi/localSettings.json
 **/.pbi/cache.abf
 
-**/output/*
-**/export/*
+**/output*/*
+**/export*/*
 
 Theme*.json
 

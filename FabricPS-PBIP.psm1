@@ -31,6 +31,8 @@ Function Export-FabricItems
         [string]$path = '.\pbipOutput'
         ,
         [string]$workspaceId = 'd020f53d-eb41-421d-af50-8279882524f3'
+        ,
+        $itemTypes = @("report", "dataset")
 	)
    
     $fabricHeaders = Get-Token
@@ -38,6 +40,11 @@ Function Export-FabricItems
     $workspaceitemsUri = "{0}/workspaces/{1}/items" -f $baseUrl, $workspaceId
 
     $items = Invoke-RestMethod -Uri $workspaceitemsUri -Method Get -Headers $fabricHeaders
+
+    if ($itemTypes)
+    {
+        $items = $items |? { $itemTypes -contains $_.type }
+    }
 
     Write-Host "Existing items: $($items.Count)"
 
