@@ -4,7 +4,7 @@
     "annotations": [
       {
         "name": "PBIDesktopVersion",
-        "value": "2.121.702.0 (23.09)"
+        "value": "2.122.442.0 (23.10)"
       },
       {
         "name": "__PBI_TimeIntelligenceEnabled",
@@ -12935,10 +12935,6 @@
           {
             "name": "PBI_ResultType",
             "value": "DateTime"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "expression": "#datetime(2020, 1, 1, 0, 0, 0) meta [IsParameterQuery=true, List={#datetime(2020, 1, 1, 0, 0, 0)}, DefaultValue=#datetime(2020, 1, 1, 0, 0, 0), Type=\"DateTime\", IsParameterQueryRequired=true]",
@@ -13020,10 +13016,6 @@
       {
         "name": "Randomizer",
         "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
           {
             "name": "PBI_ResultType",
             "value": "Number"
@@ -13249,7 +13241,7 @@
         "tablePermissions": [
           {
             "name": "Store",
-            "filterExpression": "[Store Code] IN {\"1\",\"2\",\"4\"}"
+            "filterExpression": "'Store'[Store Code] IN {\"1\",\"2\",\"4\"}"
           }
         ]
       },
@@ -13265,7 +13257,7 @@
         "tablePermissions": [
           {
             "name": "Store",
-            "filterExpression": "[Store Code] IN {\"10\",\"11\",\"15\",\"8\"}"
+            "filterExpression": "'Store'[Store Code] IN {\"10\",\"11\",\"15\",\"8\"}"
           }
         ]
       }
@@ -13290,10 +13282,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "columns": [
@@ -13810,6 +13798,32 @@
         ],
         "dataCategory": "Time",
         "description": "Calendar table",
+        "hierarchies": [
+          {
+            "name": "Year-Month-Day",
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "5d3a5413-d08c-47e5-866e-894c288c29b0",
+                "ordinal": 0
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "4009bc63-dec6-46e9-84eb-679578b38105",
+                "ordinal": 1
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "6c697b75-14d3-4471-b6ad-80d79cd35f23",
+                "ordinal": 2
+              }
+            ],
+            "lineageTag": "d00d0618-e29f-486f-a4d4-dea56417f06b"
+          }
+        ],
         "lineageTag": "bfa0074c-0a44-4a9c-8bba-c87af778b3d7",
         "partitions": [
           {
@@ -13903,10 +13917,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "columns": [
@@ -14295,6 +14305,46 @@
               ")"
             ],
             "formatString": "$ #,##0",
+            "kpi": {
+              "statusExpression": [
+                "VAR MarginPercentage = [Margin %]",
+                "VAR MarginTolerance = 0.02",
+                "VAR MarginGoal = 0.3",
+                "RETURN",
+                "    IF (",
+                "        NOT ISBLANK ( MarginPercentage ),",
+                "        SWITCH (",
+                "            TRUE,",
+                "            MarginPercentage < MarginGoal - MarginTolerance, -1,     -- Negative",
+                "            MarginPercentage > MarginGoal + MarginTolerance, 1,      -- Positive",
+                "            0",
+                "        )",
+                "    )"
+              ],
+              "targetExpression": [
+                "[Margin % Overall]",
+                ""
+              ],
+              "trendExpression": [
+                "-- DAX code for Trend Expression",
+                "VAR MarginPerc = [Margin %]",
+                "VAR PrevMarginPerc =",
+                "    CALCULATE (",
+                "        [Margin %],",
+                "        PREVIOUSYEAR( 'Calendar'[Date] )",
+                "    )",
+                "RETURN",
+                "    IF (",
+                "        NOT ISBLANK ( MarginPerc ) && NOT ISBLANK ( PrevMarginPerc ),",
+                "        SWITCH (",
+                "            TRUE,",
+                "            MarginPerc > PrevMarginPerc, 1,  -- Positive",
+                "            MarginPerc < PrevMarginPerc, -1, -- Negative",
+                "            0",
+                "        )",
+                "    )"
+              ]
+            },
             "lineageTag": "d22a262b-b776-4ccd-b9bd-7ef9c90eba51"
           },
           {
@@ -14376,6 +14426,27 @@
             ],
             "formatString": "$ #,##0",
             "lineageTag": "9a48bea0-e5fb-40fa-9e81-f61288e31a02"
+          },
+          {
+            "name": "Margin %",
+            "expression": "DIVIDE ( [Margin], [Sales Amount] )",
+            "formatString": "#,##0.00 %",
+            "lineageTag": "91a7a901-c646-41fe-a1ed-6e82b421d140"
+          },
+          {
+            "name": "Cost",
+            "expression": "SUMX ( Sales, Sales[Quantity] * Sales[Unit Cost] )",
+            "formatString": "$ #,##0",
+            "lineageTag": "3e5cb67e-a411-476f-ad34-7ec10dfd084d"
+          },
+          {
+            "name": "Margin % Overall",
+            "expression": [
+              "ROUND ( CALCULATE( [Margin %], REMOVEFILTERS () ), 2 )",
+              ""
+            ],
+            "formatString": "#,##0.00 %",
+            "lineageTag": "b2155351-e104-4bae-941b-3e651804cee5"
           }
         ],
         "partitions": [
@@ -14626,6 +14697,32 @@
           }
         ],
         "description": "Product Catalog",
+        "hierarchies": [
+          {
+            "name": "Product Hierarchy",
+            "levels": [
+              {
+                "name": "Category",
+                "column": "Category",
+                "lineageTag": "9ff3052d-e0de-44e8-85c3-85b8cc978936",
+                "ordinal": 0
+              },
+              {
+                "name": "Subcategory",
+                "column": "Subcategory",
+                "lineageTag": "647503e7-1d2b-4e0a-bc36-1ce6bc3d81ca",
+                "ordinal": 1
+              },
+              {
+                "name": "Product",
+                "column": "Product",
+                "lineageTag": "85ba527d-a9e2-4f3d-85d9-447600445bc3",
+                "ordinal": 2
+              }
+            ],
+            "lineageTag": "89345cc9-e735-4d62-8caf-e494a6314e93"
+          }
+        ],
         "lineageTag": "e9374b9a-faee-4f9e-b2e7-d9aafb9d6a91",
         "measures": [
           {
@@ -15488,14 +15585,14 @@
             "annotations": [
               {
                 "name": "SummarizationSetBy",
-                "value": "Automatic"
+                "value": "User"
               }
             ],
             "dataType": "int64",
             "formatString": "0",
             "lineageTag": "93bae8d8-9794-480e-8753-d51693dfa9ad",
             "sourceColumn": "Order",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           }
         ],
         "description": [
@@ -15528,6 +15625,205 @@
                 "    #\"Reordered Columns\""
               ],
               "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Parameter - Dimension",
+        "annotations": [
+          {
+            "name": "PBI_Id",
+            "value": "fb0b744d500c4fe187fc782efa6004bb"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Parameter - Dimension",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": false,
+            "lineageTag": "f29057e2-1184-48f8-b6c5-08f85cfd5ec1",
+            "relatedColumnDetails": {
+              "groupByColumns": [
+                {
+                  "groupingColumn": "Parameter - Dimension Fields"
+                }
+              ]
+            },
+            "sortByColumn": "Parameter - Dimension Order",
+            "sourceColumn": "[Value1]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "Parameter - Dimension Fields",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "extendedProperties": [
+              {
+                "name": "ParameterMetadata",
+                "type": "json",
+                "value": {
+                  "kind": 2,
+                  "version": 3
+                }
+              }
+            ],
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "isNameInferred": false,
+            "lineageTag": "dc604c44-bcb1-44cd-acb7-55201a651d63",
+            "sortByColumn": "Parameter - Dimension Order",
+            "sourceColumn": "[Value2]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "Parameter - Dimension Order",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "isNameInferred": false,
+            "lineageTag": "2102f8c8-0503-42f5-ac07-b1a606810a4a",
+            "sourceColumn": "[Value3]",
+            "summarizeBy": "sum",
+            "type": "calculatedTableColumn"
+          }
+        ],
+        "lineageTag": "29294de5-e93a-47f4-bd78-26ec8efe7786",
+        "partitions": [
+          {
+            "name": "Parameter - Dimension",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "{",
+                "    (\"Customer\", NAMEOF('Customer'[Customer]), 0),",
+                "    (\"Product\", NAMEOF('Product'[Product]), 1),",
+                "    (\"Store\", NAMEOF('Store'[Store]), 2)",
+                "}"
+              ],
+              "type": "calculated"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Parameter - Measure",
+        "annotations": [
+          {
+            "name": "PBI_Id",
+            "value": "1a6e47ba0137472192b990cc0ff130aa"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Parameter - Measure",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": false,
+            "lineageTag": "f2f4b00e-fa13-46c5-9726-16717f325e26",
+            "relatedColumnDetails": {
+              "groupByColumns": [
+                {
+                  "groupingColumn": "Parameter - Measure Fields"
+                }
+              ]
+            },
+            "sortByColumn": "Parameter - Measure Order",
+            "sourceColumn": "[Value1]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "Parameter - Measure Fields",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "extendedProperties": [
+              {
+                "name": "ParameterMetadata",
+                "type": "json",
+                "value": {
+                  "kind": 2,
+                  "version": 3
+                }
+              }
+            ],
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "isNameInferred": false,
+            "lineageTag": "4787b049-3037-4007-9719-bfeed93a7cff",
+            "sortByColumn": "Parameter - Measure Order",
+            "sourceColumn": "[Value2]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "Parameter - Measure Order",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "isNameInferred": false,
+            "lineageTag": "5898d688-d0af-4285-9d33-3a41d2401e4b",
+            "sourceColumn": "[Value3]",
+            "summarizeBy": "sum",
+            "type": "calculatedTableColumn"
+          }
+        ],
+        "lineageTag": "eee26640-bfec-44ed-b1e7-d56562bc25ed",
+        "partitions": [
+          {
+            "name": "Parameter - Measure",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "{",
+                "    (\"# Sales\", NAMEOF('Sales'[# Sales]), 0),",
+                "    (\"# Products (with Sales)\", NAMEOF('Sales'[# Products (with Sales)]), 1),",
+                "    (\"# Customers (with Sales)\", NAMEOF('Sales'[# Customers (with Sales)]), 2),",
+                "    (\"Margin\", NAMEOF('Sales'[Margin]), 3),",
+                "    (\"Sales Amount\", NAMEOF('Sales'[Sales Amount]), 4),",
+                "    (\"Sales Qty\", NAMEOF('Sales'[Sales Qty]), 5)",
+                "}"
+              ],
+              "type": "calculated"
             }
           }
         ]

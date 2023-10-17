@@ -1,26 +1,14 @@
-# Export items from workspace
+$currentPath = (Split-Path $MyInvocation.MyCommand.Definition -Parent)
 
-```powershell
-
-Import-Module ".\FabricPS-PBIP.psm1" -Force
-
-$workspaceId = "[Workspace Id]]"
-
-Export-FabricItems -workspaceId $workspaceId -path '.\export'
-
-```
-
-# Import PBIP content to workspace
-
-```powershell
+Set-Location $currentPath
 
 Import-Module ".\FabricPS-PBIP.psm1" -Force
 
-$workspaceName = "[Workspace Name]"
-$datasetName = "[Dataset Name]"
-$reportName = "[Report Name]"
-$pbipDatasetPath = "[Path to Dataset PBIP folder]"
-$pbipReportPath = "[Path to Report PBIP folder]"
+$workspaceName = "RR - PlatformAPIs - Temp"
+$datasetName = "Sales"
+$reportName = "Sales"
+$pbipDatasetPath = "$currentPath\SamplePBIP\Sales.Dataset"
+$pbipReportPath = "$currentPath\SamplePBIP\Sales.Report"
 
 # Ensure workspace
 
@@ -41,7 +29,7 @@ $datasetId = Import-FabricItems -workspaceId $workspaceId -path $pbipDatasetPath
 
 $fileReportOverrides = @{
     
-    # Change the connected dataset, APIs dont support "byPath" connection
+    # Change the connected dataset
 
     "definition.pbir" = @{
         "version" = "1.0"
@@ -74,4 +62,8 @@ $fileReportOverrides = @{
 
 $reportId = Import-FabricItems -workspaceId $workspaceId -path $pbipReportPath -fileOverrides $fileReportOverrides
 
-```
+
+
+
+
+

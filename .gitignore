@@ -7,3 +7,5 @@
 Theme*.json
 
 *.url
+
+LocalTest*

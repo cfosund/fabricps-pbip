@@ -2,5 +2,6 @@
   "version": "1.0",
   "showHiddenFields": true,
   "parallelQueryLoading": true,
-  "relationshipImportEnabled": true
+  "relationshipImportEnabled": true,
+  "shouldNotifyUserOfNameConflictResolution": true
 }
