@@ -4,7 +4,7 @@ Set-Location $currentPath
 
 Import-Module ".\FabricPS-PBIP.psm1" -Force
 
-$workspaceName = "RR - PlatformAPIs - Temp"
+$workspaceName = "RR - FabricAPIs - Deploy"
 $datasetName = "Sales"
 $reportName = "Sales"
 $pbipDatasetPath = "$currentPath\SamplePBIP\Sales.Dataset"
@@ -13,6 +13,8 @@ $pbipReportPath = "$currentPath\SamplePBIP\Sales.Report"
 # Ensure workspace
 
 $workspaceId = New-FabricWorkspace  -name $workspaceName -skipErrorIfExists
+
+if (!$workspaceId) { throw "WorkspaceId cannot be null"}
 
 # Deploy Dataset
 

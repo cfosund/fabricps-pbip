@@ -4,13 +4,15 @@ Set-Location $currentPath
 
 Import-Module ".\FabricPS-PBIP.psm1" -Force
 
-# https://msit.powerbi.com/groups/d020f53d-eb41-421d-af50-8279882524f3
-
 $workspaceId = "d020f53d-eb41-421d-af50-8279882524f3"
-$newTheme = "$currentPath\sample-resources\Theme_light.json"
+$newTheme = "$currentPath\sample-resources\Theme_dark.json"
 $exportFolder = "$currentPath\exportThemeSwap"
 
+# Exports all reports from workspace
+
 Export-FabricItems -workspaceId $workspaceId -path $exportFolder -itemTypes @("report")
+
+# Only change reports with theme files
 
 $themeFiles = Get-ChildItem  -Path $exportFolder -recurse |? {
     
@@ -25,7 +27,7 @@ $themeFiles = Get-ChildItem  -Path $exportFolder -recurse |? {
     }
 }
 
-#Swap theme file
+#Swap theme file and import reports
 
 foreach($themeFile in $themeFiles)
 {

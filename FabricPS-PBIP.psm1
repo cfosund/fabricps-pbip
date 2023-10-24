@@ -106,7 +106,8 @@ Function Invoke-FabricAPIRequest {
             
         }
 
-        if ($response.StatusCode -eq 200 -and $response.Content)        
+        #if ($response.StatusCode -in @(200,201) -and $response.Content)        
+        if ($response.Content)
         {            
             $contentBytes = $response.RawContentStream.ToArray()
 
@@ -124,37 +125,27 @@ Function Invoke-FabricAPIRequest {
             Write-Output $contentText | ConvertFrom-Json -NoEnumerate
         }        
     }
-    catch [System.Net.WebException] {
+    catch {
         $ex = $_.Exception
 
         try {
             if ($ex.Response -ne $null) {
-                $stream = $ex.Response.GetResponseStream()
 
-                $reader = New-Object System.IO.StreamReader($stream)
-
-                $reader.BaseStream.Position = 0
-
-                $reader.DiscardBufferedData()
-
-                $errorContent = $reader.ReadToEnd()
+                $errorContent = $ex.Response.Content.ReadAsStringAsync().Result;
         
-                $message = "$($ex.Message) - '$errorContent'"
+                $message = "$($ex.Message) - StatusCode: '$($ex.Response.StatusCode)'; Content: '$errorContent'"
             }
             else {
-                $message = "$($ex.Message) - 'Empty'"
+                $message = "$($ex.Message)"
             }
+            
+            #Write-Error -Exception $ex -Message $message
 
-            Write-Error -Exception $ex -Message $message
+            throw $message
         }
         catch {
             throw;
-        }
-        finally {
-            if ($reader) { $reader.Dispose() }
-        
-            if ($stream) { $stream.Dispose() }
-        }       		
+        }    		
     }
 
 }
@@ -183,7 +174,7 @@ Function New-FabricWorkspace {
         $ex = $_.Exception
 
         if ($skipErrorIfExists) {
-            if ($ex.Response.StatusCode -eq "Conflict") {
+            if ($ex.Message -ilike "*409*") {
                 Write-Host "Workspace already exists"
 
                 $listWorkspaces = Invoke-FabricAPIRequest -Uri ("{0}/workspaces" -f $baseUrl) -Method Get
@@ -213,11 +204,9 @@ Function Export-FabricItems {
         [string]$workspaceId = ''
         ,
         [array]$itemTypes = @("report", "dataset")
-    )
+    )    
 
-    $workspaceitemsUri = "{0}/workspaces/{1}/items" -f $baseUrl, $workspaceId
-
-    $items = Invoke-FabricAPIRequest -Uri $workspaceitemsUri -Method Get
+    $items = Invoke-FabricAPIRequest -Uri "workspaces/$workspaceId/items" -Method Get
 
     if ($itemTypes) {
         $items = $items | ? { $itemTypes -contains $_.type }
@@ -237,9 +226,8 @@ Function Export-FabricItems {
             #POST https://api.fabric.microsoft.com/v1/workspaces/{workspaceId}/items/{itemId}/getDefinition
 
             $response = $null
-            Write-Host "$baseUrl/workspaces/$workspaceId/items/$itemId/getDefinition"
 
-            $response = Invoke-FabricAPIRequest -Uri "$baseUrl/workspaces/$workspaceId/items/$itemId/getDefinition" -Method Post
+            $response = Invoke-FabricAPIRequest -Uri "workspaces/$workspaceId/items/$itemId/getDefinition" -Method Post
 
             Write-Host "Parts: $($response.definition.parts.Count)"
 
