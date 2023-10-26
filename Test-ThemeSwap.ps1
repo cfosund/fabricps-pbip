@@ -2,7 +2,7 @@ $currentPath = (Split-Path $MyInvocation.MyCommand.Definition -Parent)
 
 Set-Location $currentPath
 
-Import-Module ".\FabricPS-PBIP.psm1" -Force
+Import-Module ".\FabricPS-PBIP" -Force
 
 $workspaceId = "d020f53d-eb41-421d-af50-8279882524f3"
 $newTheme = "$currentPath\sample-resources\Theme_dark.json"
