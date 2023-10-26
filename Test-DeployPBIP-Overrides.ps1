@@ -52,6 +52,7 @@ $fileReportOverrides = @{
     "*_7abfc6c7-1a23-4b5f-bd8b-8dc472366284171093267.jpg" = [System.IO.File]::ReadAllBytes("$currentPath\sample-resources\logo2.jpg")
 
     # Change theme
+    
     "*Light4437032645752863.json" = [System.IO.File]::ReadAllBytes("$currentPath\sample-resources\theme_dark.json")
 
     # Report Name

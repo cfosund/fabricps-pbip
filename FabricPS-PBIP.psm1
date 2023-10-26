@@ -231,8 +231,7 @@ Function Export-FabricItems {
 
             foreach ($part in $response.definition.parts) {
                 Write-Host "Saving part: $($part.path)"
-
-                #$outputFilePath = "$outputPath\$workspaceId\$itemId\$($part.path.Replace("/", "\"))"
+                
                 $outputFilePath = "$itemOutputPath\$($part.path.Replace("/", "\"))"
 
                 New-Item -ItemType Directory -Path (Split-Path $outputFilePath -Parent) -ErrorAction SilentlyContinue | Out-Null
