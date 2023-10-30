@@ -9,3 +9,7 @@ Theme*.json
 *.url
 
 LocalTest*
+
+_temp/*
+
+_tools/*
