@@ -66,7 +66,8 @@ Function Invoke-FabricAPIRequest {
         [Parameter(Mandatory = $false)] $body,        
         [Parameter(Mandatory = $false)] [string] $contentType = "application/json; charset=utf-8",
         [Parameter(Mandatory = $false)] [int] $timeoutSec = 240,
-        [Parameter(Mandatory = $false)] [string] $outFile
+        [Parameter(Mandatory = $false)] [string] $outFile,
+        [Parameter(Mandatory = $false)] [int] $retryCount = 0
             
     )
 
@@ -125,25 +126,56 @@ Function Invoke-FabricAPIRequest {
     }
     catch {
         $ex = $_.Exception
+        
+        $message = $null
 
-        try {
-            if ($ex.Response -ne $null) {
+        if ($ex.Response -ne $null) {
 
+            $responseStatusCode = [int]$ex.Response.StatusCode
+
+            if ($responseStatusCode -in @(429))
+            {
+                if ($ex.Response.Headers.RetryAfter)
+                {
+                    $retryAfterSeconds = $ex.Response.Headers.RetryAfter.Delta.TotalSeconds + 5
+                }
+
+                if (!$retryAfterSeconds)
+                {
+                    $retryAfterSeconds = 60
+                }
+
+                Write-Host "Exceeded the amount of calls (TooManyRequests - 429), sleeping for $retryAfterSeconds seconds."
+
+                Start-Sleep -Seconds $retryAfterSeconds
+
+                $maxRetries = 3
+                
+                if ($retryCount -le $maxRetries)
+                {
+                    Invoke-FabricAPIRequest -authToken $authToken -uri $uri -method $method -body $body -contentType $contentType -timeoutSec $timeoutSec -outFile $outFile -retryCount ($retryCount + 1)
+                }
+                else {
+                    throw "Exceeded the amount of retries ($maxRetries) after 429 error."
+                }
+
+            }
+            else
+            {
                 $errorContent = $ex.Response.Content.ReadAsStringAsync().Result;
         
                 $message = "$($ex.Message) - StatusCode: '$($ex.Response.StatusCode)'; Content: '$errorContent'"
             }
-            else {
-                $message = "$($ex.Message)"
-            }
-            
-            #Write-Error -Exception $ex -Message $message
-
+        }
+        else {
+            $message = "$($ex.Message)"
+        }
+                
+        if ($message)
+        {
             throw $message
         }
-        catch {
-            throw;
-        }    		
+    		
     }
 
 }

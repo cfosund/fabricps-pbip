@@ -4,11 +4,10 @@ Set-Location $currentPath
 
 Import-Module ".\FabricPS-PBIP" -Force
 
-$workspaces = @("c45c04b0-4fe8-4566-bc78-0f768872aeaf", "152bf87a-d715-46cd-bed2-a14d8f2ad72a")
+$workspaces = @("d036b3f6-049e-4757-b1cd-80ea88dfbac5", "409a6698-e92d-432c-9901-179107aecf03")
 $exportLocation = "$currentPath\export\rules"
-$skipWorkspaceExport = $true
 
-# Download tools
+# Download Tabular Editor
                 
 $tabularEditorPath = "$currentPath\_tools\TE\TabularEditor.exe"
 $tabularEditorRulesPath = "$currentPath\_tools\TE\rules.json" 
@@ -27,6 +26,8 @@ if (!(Test-Path $tabularEditorPath))
     $downloadUrl = "https://raw.githubusercontent.com/microsoft/Analysis-Services/master/BestPracticeRules/BPARules.json"
     Invoke-WebRequest -Uri $downloadUrl -OutFile $tabularEditorRulesPath
 }
+
+# Download PBI Inspector
 
 $pbiInspectorPath = "$currentPath\_tools\PBIInspector\win-x64\CLI\PBIXInspectorCLI.exe" 
 $pbiInspectorRulesPath = "$currentPath\_tools\PBIInspector\rules.json" 
@@ -49,19 +50,14 @@ if (!(Test-Path $pbiInspectorPath))
 
 # Export Fabric content
 
-if (!$skipWorkspaceExport)
+foreach($workspaceId in $workspaces)
 {
-    foreach($workspaceId in $workspaces)
-    {
-        Export-FabricItems -workspaceId $workspaceId -path $exportLocation
-    }
+    Export-FabricItems -workspaceId $workspaceId -path $exportLocation
 }
 
 # Run Rules for each dataset and report and persist output in file
 
 $itemsFolders = Get-ChildItem  -Path $exportLocation -recurse -include *.pbir, *.pbidataset
-
-# Datasets first
 
 $itemsFolders = $itemsFolders | Select-Object  @{n="Order";e={ if ($_.Name -like "*.pbidataset") {1} else {2} }}, * | sort-object Order    
 
@@ -80,6 +76,7 @@ foreach ($itemFolder in $itemsFolders) {
     Write-Host "Running rules for '$itemFolderPath' ($itemName - $itemType)"
 
     $toolOutputPath = "$exportLocation\rulesOutput\$($itemType)_$($workspaceId)_$($itemName).txt"
+
     New-Item -ItemType Directory -Path (Split-Path $toolOutputPath) -ErrorAction SilentlyContinue | Out-Null    
 
     if ($itemType -ieq "dataset")
