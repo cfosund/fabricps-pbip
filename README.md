@@ -1,3 +1,12 @@
+# Requirements
+
+The FabricPS-PBIP module has a dependency to Az.Accounts module.
+Run the following command before importing FabricPS-PBIP:
+
+```powershell
+Install-Module Az.Accounts
+```
+
 # Export items from workspace
 
 ```powershell
