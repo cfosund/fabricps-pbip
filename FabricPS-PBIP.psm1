@@ -3,6 +3,10 @@ $script:resourceUrl = "https://api.fabric.microsoft.com"
 $script:fabricToken = $null
 
 function Get-FabricAuthToken {
+    <#
+    .SYNOPSIS
+        Get the Fabric API authentication token
+    #>
     [CmdletBinding()]
     param
     (
@@ -17,6 +21,10 @@ function Get-FabricAuthToken {
 }
 
 function Set-FabricAuthToken {
+    <#
+    .SYNOPSIS
+        Set authentication token for the Fabric service
+    #>
     [CmdletBinding()]
     param
     (
@@ -58,6 +66,11 @@ function Set-FabricAuthToken {
 }
 
 Function Invoke-FabricAPIRequest {
+    <#
+    .SYNOPSIS
+        Sends an HTTP request to a Fabric API endpoint and retrieves the response.
+        Takes care of: authentication, 429 throttling, Long-Running-Operation (LRO) response
+    #>
     [CmdletBinding()]		
     param(									
         [Parameter(Mandatory = $false)] [string] $authToken,
@@ -181,6 +194,10 @@ Function Invoke-FabricAPIRequest {
 }
 
 Function New-FabricWorkspace {
+    <#
+    .SYNOPSIS
+        Creates a new Fabric workspace.
+    #>
     [CmdletBinding()]
     param
     (
@@ -226,6 +243,10 @@ Function New-FabricWorkspace {
 }
 
 Function Export-FabricItems {
+    <#
+    .SYNOPSIS
+        Exports items from a Fabric workspace to a specified local file system destination.
+    #>
     [CmdletBinding()]
     param
     (
@@ -286,6 +307,13 @@ Function Export-FabricItems {
 }
 
 Function Import-FabricItems {
+    <#
+    .SYNOPSIS
+        Imports items using the Power BI Project format (PBIP) into a Fabric workspace from a specified file system source.
+
+    .PARAMETER fileOverrides
+        This parameter let's you override a PBIP file without altering the local file. 
+    #>
     [CmdletBinding()]
     param
     (
@@ -295,7 +323,7 @@ Function Import-FabricItems {
         ,
         [string]$filter = $null
         ,
-        [hashtable] $fileOverrides
+        [hashtable]$fileOverrides
     )
 
     # Search for folders with .pbir and .pbidataset in it
@@ -489,6 +517,10 @@ Function Import-FabricItems {
 }
 
 Function Remove-FabricItems {
+    <#
+    .SYNOPSIS
+        Removes selected items from a Fabric workspace.
+    #>
     [CmdletBinding()]
     param
     (
