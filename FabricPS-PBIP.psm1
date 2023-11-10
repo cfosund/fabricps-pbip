@@ -35,11 +35,18 @@ function Set-FabricAuthToken {
         [string]$tenantId 
         ,
         [switch]$reset
+        ,
+        [string]$apiUrl
     )
 
     if (!$reset)
     {
         $azContext = Get-AzContext
+    }
+    
+    if ($apiUrl)
+    {
+        $script:apiUrl = $apiUrl
     }
 
     if (!$azContext) {
@@ -97,6 +104,8 @@ Function Invoke-FabricAPIRequest {
         
         $requestUrl = "$($script:apiUrl)/$uri"
 
+        Write-Verbose "Calling $requestUrl"
+        
         $response = Invoke-WebRequest -Headers $fabricHeaders -Method $method -Uri $requestUrl -Body $body  -TimeoutSec $timeoutSec -OutFile $outFile
 
         if ($response.StatusCode -eq 202)
@@ -134,7 +143,14 @@ Function Invoke-FabricAPIRequest {
                 $contentText = $response.Content
             }
 
-            Write-Output $contentText | ConvertFrom-Json -NoEnumerate
+            $jsonResult = $contentText | ConvertFrom-Json
+
+            if ($jsonResult.value)
+            {
+                $jsonResult = $jsonResult.value
+            }
+
+            Write-Output $jsonResult -NoEnumerate
         }        
     }
     catch {
@@ -252,15 +268,16 @@ Function Export-FabricItems {
     (
         [string]$path = '.\pbipOutput'
         ,
-        [string]$workspaceId = ''
+        [string]$workspaceId = ''    
         ,
-        [array]$itemTypes = @("report", "dataset")
+        [scriptblock]$filter = {$_.type -in @("report", "SemanticModel")}
     )    
 
     $items = Invoke-FabricAPIRequest -Uri "workspaces/$workspaceId/items" -Method Get
 
-    if ($itemTypes) {
-        $items = $items | ? { $itemTypes -contains $_.type }
+    if ($filter) {
+        #$items = $items | ? { $_.type -in  $itemTypes }
+        $items = $items | Where-Object $filter
     }
 
     Write-Host "Existing items: $($items.Count)"
@@ -271,7 +288,7 @@ Function Export-FabricItems {
         $itemType = $item.type
         $itemOutputPath = "$path\$workspaceId\$($itemName).$($itemType)"
 
-        if ($itemType -in @("report", "dataset")) {
+        if ($itemType -in @("report", "semanticmodel")) {
             Write-Host "Getting definition of: $itemId / $itemName / $itemType"
 
             #POST https://api.fabric.microsoft.com/v1/workspaces/{workspaceId}/items/{itemId}/getDefinition
@@ -508,7 +525,7 @@ Function Import-FabricItems {
 
         # Save dataset references to swap byPath to byConnection
 
-        if ($itemType -ieq "dataset")
+        if ($itemType -ieq "semanticmodel")
         {
             $datasetReferences[$itemPath] = @{"id" = $itemId; "name" = $displayName}
         }
