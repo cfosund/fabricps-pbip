@@ -118,7 +118,7 @@ Function Invoke-FabricAPIRequest {
 
                 Start-Sleep -Seconds 10
 
-                $response = Invoke-WebRequest -Headers $fabricHeaders -Method Get -Uri $asyncUrl 
+                $response = Invoke-WebRequest -Headers $fabricHeaders -Method Get -Uri $asyncUrl
 
             }
             while($response.StatusCode -eq 202)
@@ -154,6 +154,7 @@ Function Invoke-FabricAPIRequest {
         }        
     }
     catch {
+          
         $ex = $_.Exception
         
         $message = $null
@@ -191,9 +192,13 @@ Function Invoke-FabricAPIRequest {
             }
             else
             {
-                $errorContent = $ex.Response.Content.ReadAsStringAsync().Result;
+                throw
+
+                # TODO: Investigate why response.Content is empty but powershell can read it on throw
+
+                #$errorContent = $ex.Response.Content.ReadAsStringAsync().Result;
         
-                $message = "$($ex.Message) - StatusCode: '$($ex.Response.StatusCode)'; Content: '$errorContent'"
+                #$message = "$($ex.Message) - StatusCode: '$($ex.Response.StatusCode)'; Content: '$errorContent'"
             }
         }
         else {
