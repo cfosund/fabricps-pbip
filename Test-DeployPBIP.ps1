@@ -4,7 +4,7 @@ Set-Location $currentPath
 
 Import-Module ".\FabricPS-PBIP" -Force
 
-$workspaceName = "RR - FabricAPIs - Deploy 5"
+$workspaceName = "RR - FabricAPIs - Deploy 6"
 $datasetName = "Dataset A"
 $reportName = "Report A"
 $pbipPath = "$currentPath\SamplePBIP"

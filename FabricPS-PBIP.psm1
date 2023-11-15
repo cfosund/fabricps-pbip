@@ -116,13 +116,15 @@ Function Invoke-FabricAPIRequest {
 
                 Write-Host "Waiting for request to complete. Sleeping..."
 
-                Start-Sleep -Seconds 10
+                Start-Sleep -Seconds 5
 
                 $response = Invoke-WebRequest -Headers $fabricHeaders -Method Get -Uri $asyncUrl
 
+                $lroStatusContent = $response.Content | ConvertFrom-Json
+
             }
-            while($response.StatusCode -eq 202)
-            
+            while($lroStatusContent.status -ine "succeeded" -and $lroStatusContent.status -ine "failed")
+
             $response = Invoke-WebRequest -Headers $fabricHeaders -Method Get -Uri "$asyncUrl/result"
             
         }
@@ -394,6 +396,12 @@ Function Import-FabricItems {
         
         $itemMetadata = $itemMetadataStr | ConvertFrom-Json
         $itemType = $itemMetadata.type
+        
+        if ($itemType -ieq "dataset")
+        {
+            $itemType = "SemanticModel"
+        }
+
         $displayName = $itemMetadata.displayName
 
         $itemPathAbs = Resolve-Path $itemPath
