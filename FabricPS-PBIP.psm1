@@ -194,7 +194,21 @@ Function Invoke-FabricAPIRequest {
             }
             else
             {
-                throw
+                $apiErrorObj = $ex.Response.Headers |? {$_.key -ieq "x-ms-public-api-error-code"} | Select -First 1
+
+                if ($apiErrorObj)
+                {
+                    $apiError = $apiErrorObj.Value[0]
+                }
+
+                if ($apiError -ieq "ItemHasProtectedLabel")
+                {
+                    Write-Warning "Item has a protected label."
+                }
+                else
+                {
+                    throw
+                }
 
                 # TODO: Investigate why response.Content is empty but powershell can read it on throw
 
@@ -304,25 +318,30 @@ Function Export-FabricItems {
 
             $response = Invoke-FabricAPIRequest -Uri "workspaces/$workspaceId/items/$itemId/getDefinition" -Method Post
 
-            Write-Host "Parts: $($response.definition.parts.Count)"
+            $partCount = $response.definition.parts.Count
 
-            foreach ($part in $response.definition.parts) {
-                Write-Host "Saving part: $($part.path)"
-                
-                $outputFilePath = "$itemOutputPath\$($part.path.Replace("/", "\"))"
+            Write-Host "Parts: $partCount"
+            
+            if ($partCount -gt 0)
+            {
+                foreach ($part in $response.definition.parts) {
+                    Write-Host "Saving part: $($part.path)"
+                    
+                    $outputFilePath = "$itemOutputPath\$($part.path.Replace("/", "\"))"
 
-                New-Item -ItemType Directory -Path (Split-Path $outputFilePath -Parent) -ErrorAction SilentlyContinue | Out-Null
+                    New-Item -ItemType Directory -Path (Split-Path $outputFilePath -Parent) -ErrorAction SilentlyContinue | Out-Null
 
-                $bytes = [Convert]::FromBase64String($part.payload)
+                    $bytes = [Convert]::FromBase64String($part.payload)
 
-                [IO.File]::WriteAllBytes($outputFilePath, $bytes)
+                    [IO.File]::WriteAllBytes($outputFilePath, $bytes)
+                }
+
+                @{
+                    "type"        = $itemType
+                    "displayName" = $itemName
+
+                } | ConvertTo-Json | Out-File "$itemOutputPath\item.metadata.json"
             }
-
-            @{
-                "type"        = $itemType
-                "displayName" = $itemName
-
-            } | ConvertTo-Json | Out-File "$itemOutputPath\item.metadata.json"
         }
         else {
             Write-Host "Type '$itemType' not available for export."

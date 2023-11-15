@@ -6,6 +6,6 @@ Import-Module ".\FabricPS-PBIP" -Force
 
 # Set-FabricAuthToken -reset
 
-$workspaceId = "c45c04b0-4fe8-4566-bc78-0f768872aeaf"
+$workspaceId = "9e34f19a-dec9-4405-88a9-f09b8c99310f"
 
-Export-FabricItems -workspaceId $workspaceId -path '.\export'
+Export-FabricItems -workspaceId $workspaceId -path '.\export' -filter {$_.id -eq "74ab67cc-1cfc-4275-8a96-1d03ef4e186b"}
