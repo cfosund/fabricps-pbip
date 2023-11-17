@@ -17,10 +17,10 @@ GUID = 'ac61c29c-849f-4c7d-a55b-ec0b36aa3c53'
 Author = 'Rui Romano'
 
 # Company or vendor of this module
-CompanyName = 'Unknown'
+CompanyName = 'Microsoft'
 
 # Copyright statement for this module
-Copyright = '(c) Rui Romano. All rights reserved.'
+Copyright = '(c) Microsoft. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = 'Powershell module to interact with Fabric APIs with focus on Power BI Project files (PBIP)'

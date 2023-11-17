@@ -32,6 +32,8 @@ function Set-FabricAuthToken {
         ,
         [string]$servicePrincipalSecret
         ,
+        [PSCredential]$credential
+        ,
         [string]$tenantId 
         ,
         [switch]$reset
@@ -56,12 +58,16 @@ function Set-FabricAuthToken {
         if ($servicePrincipalId) {
             $credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $servicePrincipalId, ($servicePrincipalSecret | ConvertTo-SecureString -AsPlainText -Force)
 
-            Connect-AzAccount -ServicePrincipal -TenantId $tenantId -Credential $credential
+            Connect-AzAccount -ServicePrincipal -TenantId $tenantId -Credential $credential | Out-Null
 
-            Set-AzContext -Tenant $tenantId
+            Set-AzContext -Tenant $tenantId | Out-Null
+        }
+        elseif ($credential -ne $null)
+        {
+            Connect-AzAccount -Credential $credential -Tenant $tenantId | Out-Null
         }
         else {
-            Connect-AzAccount    
+            Connect-AzAccount | Out-Null
         }
 
         $azContext = Get-AzContext        
@@ -248,7 +254,7 @@ Function New-FabricWorkspace {
     } | ConvertTo-Json
 
     try {        
-        $createResult = Invoke-FabricAPIRequest -Uri ("{0}/workspaces" -f $baseUrl) -Method Post -Body $itemRequest
+        $createResult = Invoke-FabricAPIRequest -Uri "workspaces" -Method Post -Body $itemRequest
 
         Write-Host "Workspace created"
 
@@ -261,7 +267,7 @@ Function New-FabricWorkspace {
             if ($ex.Message -ilike "*409*") {
                 Write-Host "Workspace already exists"
 
-                $listWorkspaces = Invoke-FabricAPIRequest -Uri ("{0}/workspaces" -f $baseUrl) -Method Get
+                $listWorkspaces = Invoke-FabricAPIRequest -Uri "workspaces" -Method Get
 
                 $workspace = $listWorkspaces | ? { $_.displayName -ieq $name }
 
@@ -276,6 +282,23 @@ Function New-FabricWorkspace {
             }
         }        
     }
+    
+}
+
+
+Function Get-FabricWorkspace {
+    <#
+    .SYNOPSIS
+        Get Fabric workspaces
+    #>
+    [CmdletBinding()]
+    param
+    (
+    )
+      
+    $result = Invoke-FabricAPIRequest -Uri "workspaces" -Method Get
+
+    Write-Output $result
     
 }
 
@@ -379,7 +402,7 @@ Function Import-FabricItems {
 
     # Get existing items of the workspace
 
-    $items = Invoke-FabricAPIRequest -Uri ("{0}/workspaces/{1}/items" -f $baseUrl, $workspaceId) -Method Get
+    $items = Invoke-FabricAPIRequest -Uri "workspaces/$workspaceId/items" -Method Get
 
     Write-Host "Existing items: $($items.Count)"
 
@@ -582,7 +605,7 @@ Function Remove-FabricItems {
         $fabricHeaders = Get-FabricHeaders
     }
 
-    $items = Invoke-FabricAPIRequest -Uri ("{0}/workspaces/{1}/items" -f $baseUrl, $workspaceId) -Method Get
+    $items = Invoke-FabricAPIRequest -Uri "workspaces/$workspaceId/items" -Method Get
 
     Write-Host "Existing items: $($items.Count)"
 
@@ -596,7 +619,7 @@ Function Remove-FabricItems {
 
         Write-Host "Removing item '$itemName' ($itemId)"
         
-        Invoke-FabricAPIRequest -Uri ("{0}/workspaces/{1}/items/{2}" -f $baseUrl, $workspaceId, $itemId) -Method Delete
+        Invoke-FabricAPIRequest -Uri "workspaces/$workspaceId/items/$itemId" -Method Delete
     }
     
 }
